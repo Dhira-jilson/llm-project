@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM Chat</title>
+</head>
+<body>
+
+<h2>Simple Chatbot</h2>
+
+<input id="prompt" type="text" placeholder="Ask something..." size="50">
+<button onclick="send()">Send</button>
+
+<p><b>Response:</b></p>
+<p id="response"></p>
+
+<script>
+async function send() {
+    let prompt = document.getElementById("prompt").value;
+
+    let res = await fetch("http://127.0.0.1:8000/ask", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ prompt: prompt })
+    });
+
+    let data = await res.json();
+
+    document.getElementById("response").innerText = data.reply;
+}
+</script>
+
+</body>
+</html>
