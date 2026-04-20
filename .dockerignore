@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.tox/
+.hypothesis/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Environment files (but keep if needed for runtime)
+.env.local
+.env.*.local

@@ -1,0 +1,23 @@
+# .gcloudignore for Google Cloud Build
+
+# Git
+.git
+.gitignore
+
+# Virtual environments
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Local environment
+.env
