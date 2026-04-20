@@ -1,12 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import google.generativeai as genai
+from google import genai
 import os
 
 app = FastAPI()
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash-latest")
+# Initialize client
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -18,7 +18,10 @@ def home():
 @app.post("/ask")
 def ask(req: PromptRequest):
     try:
-        response = model.generate_content(req.prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",  # lightweight + supported
+            contents=req.prompt
+        )
         return {"reply": response.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
