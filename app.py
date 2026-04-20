@@ -1,6 +1,6 @@
+from google import genai
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from google import genai
 import os
 
 app = FastAPI()
