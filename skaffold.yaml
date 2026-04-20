@@ -4,10 +4,15 @@ metadata:
   name: llm-project
 
 build:
+  # Explicitly use docker builder, not buildpacks
   artifacts:
-    - image: llm-api
+    - image: gcr.io/PROJECT_ID/llm-api
       docker:
         dockerfile: Dockerfile
+        target: ''
+  # Disable buildpacks
+  tagPolicy:
+    gitCommit: {}
 
 deploy:
   kubectl: {}

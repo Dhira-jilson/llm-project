@@ -1,17 +1,35 @@
 steps:
-  # Build the Docker image
+  # Build the Docker image using explicit Dockerfile
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA', '-t', 'gcr.io/$PROJECT_ID/llm-api:latest', '.']
-    timeout: 1200s
+    id: 'build-image'
+    args: 
+      - 'build'
+      - '--no-cache'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/llm-api:latest'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
+    timeout: 1800s
+    waitFor: ['-']
 
   # Push to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA']
+    id: 'push-image'
+    args: 
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA'
+    waitFor: ['build-image']
 
-  # Deploy to GKE (if using Kubernetes)
-  # - name: 'gcr.io/cloud-builders/kubectl'
-  #   args: ['set', 'image', 'deployment/llm-api', 'llm-api=gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA']
-  #   env: ['CLOUDSDK_COMPUTE_ZONE=us-central1-a', 'CLOUDSDK_CONTAINER_CLUSTER=my-cluster']
+  # Also push latest tag
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-latest'
+    args: 
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/llm-api:latest'
+    waitFor: ['build-image']
 
 images:
   - 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA'
@@ -20,5 +38,6 @@ images:
 options:
   machineType: 'N1_HIGHCPU_8'
   logging: CLOUD_LOGGING_ONLY
+  substitutionOption: 'ALLOW_LOOSE'
 
-timeout: 1500s
+timeout: 1800s
