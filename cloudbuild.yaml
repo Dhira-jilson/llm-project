@@ -6,34 +6,53 @@ steps:
       - 'build'
       - '--no-cache'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA'
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/$_SERVICE_NAME:$SHORT_SHA'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/llm-api:latest'
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/$_SERVICE_NAME:latest'
       - '-f'
       - 'Dockerfile'
       - '.'
     timeout: 1800s
     waitFor: ['-']
 
-  # Push to Container Registry
+  # Push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-image'
     args: 
       - 'push'
-      - 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA'
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/$_SERVICE_NAME:$SHORT_SHA'
     waitFor: ['build-image']
 
-  # Also push latest tag
+  # Push latest tag
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-latest'
     args: 
       - 'push'
-      - 'gcr.io/$PROJECT_ID/llm-api:latest'
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/$_SERVICE_NAME:latest'
     waitFor: ['build-image']
 
+  # Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/run'
+    id: 'deploy-cloudrun'
+    args:
+      - 'deploy'
+      - '$_SERVICE_NAME'
+      - '--image'
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/$_SERVICE_NAME:$SHORT_SHA'
+      - '--region'
+      - '${_DEPLOY_REGION}'
+      - '--platform'
+      - '${_PLATFORM}'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '2Gi'
+      - '--timeout'
+      - '3600'
+    waitFor: ['push-latest']
+
 images:
-  - 'gcr.io/$PROJECT_ID/llm-api:$SHORT_SHA'
-  - 'gcr.io/$PROJECT_ID/llm-api:latest'
+  - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/$_SERVICE_NAME:$SHORT_SHA'
+  - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/$_SERVICE_NAME:latest'
 
 options:
   machineType: 'N1_HIGHCPU_8'
